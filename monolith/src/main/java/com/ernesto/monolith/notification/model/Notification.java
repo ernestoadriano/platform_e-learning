@@ -1,5 +1,4 @@
-package com.ernesto.monolith.assessment.model;
-
+package com.ernesto.monolith.notification.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,23 +6,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "exam_attempt")
+@Table(name = "notifications")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class ExamAttempt {
+public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long examId;
+    private Long userId;
 
-    private Long studentId;
+    private String title;
 
-    private double score;
+    private String message;
 
-    private Boolean passed;
+    private LocalDateTime sentAt = LocalDateTime.now();
 }

@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "enrollments")
 @AllArgsConstructor
@@ -27,4 +30,10 @@ public class Enrollment {
 
     @Enumerated(EnumType.STRING)
     private EnrollmentStatus status = EnrollmentStatus.ACTIVE;
+
+    @ElementCollection
+    private Set<Long> completedLessons = new HashSet<>();
+
+    @ElementCollection
+    private Set<Long> completedModules;
 }

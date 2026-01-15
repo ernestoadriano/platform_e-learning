@@ -6,4 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> {
+
+    boolean existsByStudentIdAndCourseIdAndPassedTrue(Long studentId, Long courseId);
+
+    boolean existsByStudentIdAndModuleIdAndPassedTrue(Long studentId, Long moduleId);
 }

@@ -5,6 +5,7 @@ import com.ernesto.monolith.common.exception.BusinessException;
 import com.ernesto.monolith.course.model.Course;
 import com.ernesto.monolith.course.repository.CourseRepository;
 import com.ernesto.monolith.course.repository.ModuleRepository;
+import com.ernesto.monolith.enrollment.model.Enrollment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;

@@ -1,5 +1,6 @@
 package com.ernesto.monolith.course.service;
 
+import com.ernesto.monolith.assessment.service.ExamService;
 import com.ernesto.monolith.common.dto.CreateLessonDTO;
 import com.ernesto.monolith.common.dto.LessonDTO;
 import com.ernesto.monolith.common.dto.UpdateLessonDTO;
@@ -33,6 +34,9 @@ public class LessonService {
 
     @Autowired
     private EnrollmentService enrollmentService;
+
+    @Autowired
+    private ExamService examService;
 
     public List<LessonDTO> getByModuleId(Long moduleId) {
         List<Lesson> lessons = lessonRepository.findAllByModuleId(moduleId);
@@ -75,34 +79,6 @@ public class LessonService {
         return toDTO(lesson);
     }
 
-    @Transactional
-    public LessonDTO completeLesson(Long id, User student) {
-        Lesson lesson = getLessonById(id);
-        Enrollment enrollment = enrollmentService.getActiveEnrollment(student.getId(), lesson.getCourseId());
-
-        if (!enrollmentService.isNextLesson(enrollment, lesson)) {
-            throw new RuntimeException("Lesson locked");
-        }
-
-        if (enrollmentService.isLastLessonOfModule(enrollment, lesson)) {
-            completeModule(lesson.getModuleId(), student);
-        }
-        return toDTO(lesson);
-    }
-
-    public void completeModule(Long moduleId, User student) {
-        Module module = moduleRepository.findById(moduleId)
-                .orElseThrow(() -> new RuntimeException("Module not found"));
-
-        Enrollment enrollment = enrollmentService.getActiveEnrollment(student.getId(), module.getCourseId());
-
-        if (!enrollmentService.allLessonsCompleted(enrollment, moduleId)) {
-            return;
-        }
-
-        
-    }
-
     public LessonDTO update(Long id, UpdateLessonDTO dto) {
         Lesson lesson = getLessonById(id);
         if (dto.videoUrl() != null) {
@@ -132,6 +108,50 @@ public class LessonService {
     public void delete(Long id) {
         Lesson lesson = getLessonById(id);
         lessonRepository.delete(lesson);
+    }
+
+
+
+
+    @Transactional
+    public void completeLesson(Long id, User student) {
+        Lesson lesson = getLessonById(id);
+        Enrollment enrollment = enrollmentService.getActiveEnrollment(student.getId(), lesson.getCourseId());
+
+        if (!enrollmentService.isNextLesson(enrollment, lesson)) {
+            throw new RuntimeException("Lesson locked");
+        }
+
+        if (enrollmentService.isLastLessonOfModule(enrollment, lesson)) {
+            completeModule(lesson.getModuleId(), student);
+        }
+    }
+
+    @Transactional
+    public void completeModule(Long moduleId, User student) {
+        Module module = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new RuntimeException("Module not found"));
+
+        Enrollment enrollment = enrollmentService.getActiveEnrollment(student.getId(), module.getCourseId());
+
+        if (!enrollmentService.allLessonsCompleted(enrollment, moduleId)) {
+            return;
+        }
+
+        if (!examService.moduleTestPassed(student, moduleId)) {
+            return;
+        }
+
+        enrollmentService.markModuleCompleted(enrollment, moduleId);
+
+        if (enrollmentService.isLastModuleOfCourse(module, enrollment)) {
+            completeLesson(module.getCourseId(), student);
+        }
+    }
+
+    @Transactional
+    public void completeCourse() {
+
     }
 
     private Lesson getLessonById(Long id) {

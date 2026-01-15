@@ -1,6 +1,5 @@
 package com.ernesto.monolith.assessment.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,12 +7,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "exam_attempt")
+@Table(name = "questions")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class ExamAttempt {
+public class Question {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,9 +20,5 @@ public class ExamAttempt {
 
     private Long examId;
 
-    private Long studentId;
-
-    private double score;
-
-    private Boolean passed;
+    private String statement;
 }

@@ -1,5 +1,6 @@
 package com.ernesto.monolith.assessment.model;
 
+import com.ernesto.monolith.assessment.model.enums.ExamType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,5 +21,10 @@ public class Exam {
 
     private Long courseId;
 
-    private Double passingScore;
+    private Long moduleId;
+
+    @Enumerated(EnumType.STRING)
+    private ExamType type;
+
+    private boolean active = false;
 }
