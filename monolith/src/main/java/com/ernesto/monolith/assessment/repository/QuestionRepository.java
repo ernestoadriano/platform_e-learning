@@ -10,4 +10,6 @@ import java.util.List;
 public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     List<Question> findAllByExamId(Long examId);
+
+    boolean existsByExamId(Long examId);
 }

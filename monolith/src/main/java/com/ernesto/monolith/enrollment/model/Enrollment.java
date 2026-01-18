@@ -22,7 +22,7 @@ public class Enrollment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    private Long studentId;
 
     private Long courseId;
 
@@ -35,5 +35,5 @@ public class Enrollment {
     private Set<Long> completedLessons = new HashSet<>();
 
     @ElementCollection
-    private Set<Long> completedModules;
+    private Set<Long> completedModules = new HashSet<>();
 }

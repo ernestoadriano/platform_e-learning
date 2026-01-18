@@ -23,6 +23,12 @@ public class ExamAttempt {
 
     private Long studentId;
 
+    private Long courseId;
+
+    private Long moduleId;
+
+    private Long lessonId;
+
     private double score;
 
     private Boolean passed;

@@ -23,6 +23,8 @@ public class Exam {
 
     private Long moduleId;
 
+    private Long lessonId;
+
     @Enumerated(EnumType.STRING)
     private ExamType type;
 

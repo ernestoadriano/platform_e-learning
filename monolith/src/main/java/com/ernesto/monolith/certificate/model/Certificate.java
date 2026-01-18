@@ -25,4 +25,6 @@ public class Certificate {
     private Long courseId;
 
     private LocalDateTime issuedAt = LocalDateTime.now();
+
+    private String certificateUrl;
 }

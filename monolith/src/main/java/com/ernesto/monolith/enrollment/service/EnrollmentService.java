@@ -1,24 +1,24 @@
 package com.ernesto.monolith.enrollment.service;
 
+import com.ernesto.monolith.assessment.service.ExamService;
 import com.ernesto.monolith.certificate.service.CertificateService;
-import com.ernesto.monolith.common.exception.BusinessException;
-import com.ernesto.monolith.course.model.Lesson;
-import com.ernesto.monolith.course.model.Module;
+import com.ernesto.monolith.common.dto.NotificationType;
 import com.ernesto.monolith.course.repository.LessonRepository;
-import com.ernesto.monolith.course.repository.ModuleRepository;
 import com.ernesto.monolith.enrollment.model.Enrollment;
 import com.ernesto.monolith.enrollment.model.LessonProgress;
 import com.ernesto.monolith.enrollment.model.enums.EnrollmentStatus;
 import com.ernesto.monolith.enrollment.repository.EnrollmentRepository;
 import com.ernesto.monolith.enrollment.repository.LessonProgressRepository;
+import com.ernesto.monolith.notification.service.NotificationService;
+import com.ernesto.monolith.order.model.Purchase;
+import com.ernesto.monolith.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Objects;
 
 @Service
 public class EnrollmentService {
-
 
     @Autowired
     private EnrollmentRepository enrollmentRepository;
@@ -26,8 +26,6 @@ public class EnrollmentService {
     @Autowired
     private LessonRepository lessonRepository;
 
-    @Autowired
-    private ModuleRepository moduleRepository;
 
     @Autowired
     private LessonProgressRepository progressRepository;
@@ -35,41 +33,38 @@ public class EnrollmentService {
     @Autowired
     private CertificateService certificateService;
 
-    public Enrollment getActiveEnrollment(Long studentId, Long courseId) {
-        Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(studentId, courseId)
-                .orElseThrow(() -> new BusinessException("Student not found"));
-        if (!enrollment.getStatus().equals(EnrollmentStatus.ACTIVE)) {
-            throw new BusinessException("This course is already complete");
+    @Autowired
+    private NotificationService notificationService;
+
+    public void createEnrollment(Purchase purchase) {
+        boolean alreadyEnrolled = enrollmentRepository.existsByStudentIdAndCourseId(purchase.getStudentId(), purchase.getCourseId());
+
+        if (alreadyEnrolled) {
+            return;
         }
 
-        return enrollment;
-    }
+        Enrollment enrollment = new Enrollment();
 
-    public boolean isNextLesson(Enrollment enrollment, Lesson lesson) {
-        List<Lesson> lessons = lessonRepository.findByModuleIdOrderByOrderIndex(lesson.getModuleId());
-        for (Lesson l : lessons) {
-            if (!enrollment.getCompletedLessons().contains(l.getId())) {
-                return l.getId().equals(lesson.getId());
-            }
-        }
-        return false;
-    }
+        enrollment.setStudentId(purchase.getStudentId());
 
-    public void markLessonCompleted(Enrollment enrollment, Lesson lesson) {
-        enrollment.getCompletedLessons().add(lesson.getId());
+        enrollment.setCourseId(purchase.getCourseId());
+
         enrollmentRepository.save(enrollment);
+
+        notificationService.notify(purchase.getStudentId(),
+                "Enrollment is complete",
+                "You have have access of course.",
+                NotificationType.ENROLLMENT);
     }
 
-    public boolean isLastLessonOfModule(Enrollment enrollment, Lesson lesson) {
-        List<Lesson> lessons = lessonRepository.findAllByModuleId(lesson.getModuleId());
-        return enrollment.getCompletedLessons().containsAll(lessons.stream().map(Lesson::getId).toList());
-    }
-
-
-    public boolean allLessonsCompleted(Enrollment enrollment, Long moduleId) {
-        List<Lesson> lessons = lessonRepository.findAllByModuleId(moduleId);
-
-        return enrollment.getCompletedLessons().containsAll(lessons.stream().map(Lesson::getId).toList());
+    public void markCourseCompleted(Enrollment enrollment, User student) {
+        enrollment.setStatus(EnrollmentStatus.COMPLETED);
+        enrollmentRepository.save(enrollment);
+        notificationService.notify(student.getId(),
+                "Course complete",
+                "Congratulations! You complete the course with success.",
+                NotificationType.COURSE);
+        certificateService.generate(student.getId(), enrollment.getCourseId());
     }
 
     public void markModuleCompleted(Enrollment enrollment, Long moduleId) {
@@ -77,29 +72,18 @@ public class EnrollmentService {
         enrollmentRepository.save(enrollment);
     }
 
-    public boolean isLastModuleOfCourse(Module module, Enrollment enrollment) {
-        List<Module> modules = moduleRepository.findAllByCourseId(module.getCourseId());
-        return modules.stream()
-                .map(Module::getId)
-                .allMatch(id ->
-                        enrollment.getCompletedModules().contains(id));
-    }
-
-    public boolean allModulesCompleted(Enrollment enrollment) {
-        List<Module> modules = moduleRepository.findAllByCourseId(enrollment.getCourseId());
-        return enrollment.getCompletedModules().containsAll(modules.stream().map(Module::getId).toList());
-    }
-
-    public void markCourseCompleted(Enrollment enrollment) {
-        enrollment.setStatus(EnrollmentStatus.COMPLETED);
-        enrollmentRepository.save(enrollment);
-    }
-
-    public void completeLesson(Long enrollmentId, Long lessonId) {
+    public void markLessonCompleted(Long enrollmentId, Long lessonId, User student) {
 
         if (progressRepository.existsByEnrollmentIdAndLessonId(enrollmentId, lessonId)) {
             return;
         }
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow();
+
+        if (!Objects.equals(student.getId(), enrollment.getStudentId())) {
+            throw new RuntimeException("Forbidden");
+        }
+
 
         LessonProgress lessonProgress = new LessonProgress();
         lessonProgress.setEnrollmentId(enrollmentId);
@@ -120,11 +104,6 @@ public class EnrollmentService {
         double percent = (completed * 100.0) / total;
 
         enrollment.setProgress(percent);
-
-        if (percent == 100.0) {
-            enrollment.setStatus(EnrollmentStatus.COMPLETED);
-            certificateService.generate(enrollment.getUserId(), enrollment.getCourseId());
-        }
 
         enrollmentRepository.save(enrollment);
     }

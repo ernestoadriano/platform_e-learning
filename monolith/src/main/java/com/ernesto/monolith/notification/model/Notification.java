@@ -1,5 +1,6 @@
 package com.ernesto.monolith.notification.model;
 
+import com.ernesto.monolith.common.dto.NotificationType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,7 +25,13 @@ public class Notification {
 
     private String title;
 
+    @Column(length = 1000)
     private String message;
 
+    private boolean read = false;
+
     private LocalDateTime sentAt = LocalDateTime.now();
+
+    @Enumerated(EnumType.STRING)
+    private NotificationType type;
 }
