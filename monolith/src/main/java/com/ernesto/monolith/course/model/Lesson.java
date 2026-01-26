@@ -27,5 +27,6 @@ public class Lesson {
 
     @Column(unique = true)
     private String videoUrl;
+
     private int orderIndex;
 }
