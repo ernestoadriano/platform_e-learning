@@ -26,7 +26,6 @@ public class EnrollmentService {
     @Autowired
     private LessonRepository lessonRepository;
 
-
     @Autowired
     private LessonProgressRepository progressRepository;
 
@@ -53,15 +52,17 @@ public class EnrollmentService {
 
         notificationService.notify(purchase.getStudentId(),
                 "Enrollment is complete",
-                "You have have access of course.",
+                "You have access of course.",
                 NotificationType.ENROLLMENT);
     }
 
-    public void markCourseCompleted(Enrollment enrollment, User student) {
+    public void markCourseCompleted(Long enrollmentId, User student) {
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                        .orElseThrow(() -> new RuntimeException("Enrollment not found"));
         enrollment.setStatus(EnrollmentStatus.COMPLETED);
         enrollmentRepository.save(enrollment);
         notificationService.notify(student.getId(),
-                "Course complete",
+                "Course completed",
                 "Congratulations! You complete the course with success.",
                 NotificationType.COURSE);
         certificateService.generate(student.getId(), enrollment.getCourseId());
