@@ -3,6 +3,7 @@ export interface User {
   email: string;
   name: string;
   role: 'ADMIN' | 'TEACHER' | 'STUDENT';
+  avatar?: string;
   createdAt: Date;
 }
 
@@ -12,7 +13,8 @@ export interface Course {
   description: string;
   price: number;
   imageUrl: string;
-  instructor: string;
+  instructor?: User;  // Mudou de string para User
+  teachers?: User[];  // Adicionado - múltiplos teachers
   modules: Module[];
   totalDuration: number;
   enrolledStudents: number;
@@ -23,9 +25,9 @@ export interface Module {
   id: string;
   title: string;
   description: string;
-  order: number;
+  order: number;  // Mudou de 'order' para 'moduleOrder'
   lessons: Lesson[];
-  quiz: Quiz;
+  quiz?: Quiz;
   isCompleted?: boolean;
   examPassed?: boolean;
 }
@@ -36,15 +38,21 @@ export interface Lesson {
   description: string;
   videoUrl: string;
   duration: number;
-  order: number;
+  lessonOrder: number;  // Mudou de 'order' para 'lessonOrder'
   questions: Question[];
   isCompleted?: boolean;
+}
+
+export interface Option {
+  id: string;
+  text: string;
+  optionOrder: number;
 }
 
 export interface Question {
   id: string;
   text: string;
-  options: string[];
+  options: Option[];  // Pode vir como string JSON ou array
   correctAnswer: number;
   explanation?: string;
 }
@@ -72,13 +80,23 @@ export interface Certificate {
   userName: string;
   courseTitle: string;
   completionDate: Date;
+  certificateCode: string;  // Adicionado
   certificateUrl: string;
 }
 
 export interface AuthResponse {
-  access_token: string;
-  refresh_token: string;
+  accessToken: string;  // Mudou de access_token para accessToken
+  refreshToken: string; // Mudou de refresh_token para refreshToken
   user: User;
+}
+
+export interface ProgressResponse {
+  courseId: string;
+  completedLessons: number;
+  totalLessons: number;
+  percentage: number;
+  lessonStatus: Record<string, boolean>;
+  lessonsScores: Record<string, number>;
 }
 
 export interface ApiError {

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -25,8 +26,11 @@ public class RefreshTokenService {
     public String generateRefreshToken(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        String refreshToken = UUID.randomUUID() + "-" + UUID.randomUUID();
 
+        refreshTokenRepository.findByUserId(userId).ifPresent(token -> {
+            refreshTokenRepository.delete(token);
+        });
+        String refreshToken = UUID.randomUUID().toString();
         String hash = BCrypt.hashpw(refreshToken, BCrypt.gensalt());
 
         RefreshToken entity = new RefreshToken();
@@ -55,6 +59,19 @@ public class RefreshTokenService {
         }
 
         throw new RuntimeException("Invalid refresh token");
+    }
+
+    private StringBuilder generateToken() {
+        String digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789.!@#$%^&*()_+=-*/,.;:}{[]<>?";
+        Random random = new Random();
+        StringBuilder token = new StringBuilder();
+        int index;
+        for (int i = 0; i < 80; i++) {
+            index = random.nextInt(digits.length());
+            token.append(digits.charAt(index));
+        }
+
+        return token;
     }
 
     public void revokeToken(RefreshToken token) {

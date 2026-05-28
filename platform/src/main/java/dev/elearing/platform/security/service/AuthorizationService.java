@@ -1,7 +1,5 @@
 package dev.elearing.platform.security.service;
 
-import dev.elearing.platform.dto.AuthPrincipal;
-import dev.elearing.platform.model.User;
 import dev.elearing.platform.repository.UserRepository;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +16,11 @@ public class AuthorizationService implements UserDetailsService {
 
     @Override
     public @NonNull UserDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return toPrincipal(user);
-    }
+        UserDetails user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with email: " + email);
+        }
 
-    private UserDetails toPrincipal(User user) {
-        return new AuthPrincipal(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getPassword(),
-                user.getAvatar(),
-                user.getRole()
-        );
+        return user;
     }
 }

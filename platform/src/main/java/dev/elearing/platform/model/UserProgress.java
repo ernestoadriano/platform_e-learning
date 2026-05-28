@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserProgress extends BaseEntity{
+public class UserProgress extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -29,9 +29,10 @@ public class UserProgress extends BaseEntity{
 
     private Integer score;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id")
-    private Course course;
+    // REMOVA esta linha - course pode ser obtido via lesson.module.course
+    // @ManyToOne
+    // @JoinColumn(name = "course_id")
+    // private Course course;
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;

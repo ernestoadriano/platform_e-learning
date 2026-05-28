@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 //import { useAuth } from '../contexts/AuthContext';
 import { Mail, Lock, User, Eye, EyeOff, UserPlus } from 'lucide-react';
+import { api } from '../services/api';
 
 export const Register = () => {
   const [name, setName] = useState('');
@@ -57,7 +58,7 @@ export const Register = () => {
     return true;
   };
 
-  /*const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -65,14 +66,16 @@ export const Register = () => {
 
     setIsLoading(true);
     try {
-      await register(name, email, password);
-      navigate('/dashboard');
+      /*await register(name, email, password);
+      navigate('/dashboard');*/
+      await api.post('/users/register/student', {name, email, password});
+      navigate('/login')
     } catch (err) {
       setError('Registration failed. Email may already be in use.');
     } finally {
       setIsLoading(false);
     }
-  };*/
+  };
 
   return (
     <div className="auth-page">
@@ -118,7 +121,7 @@ export const Register = () => {
               <p>Start your learning journey today</p>
             </div>
 
-            <form className="auth-form">
+            <form onSubmit={handleSubmit} className="auth-form">
               <div className="form-group">
                 <label htmlFor="name">Full Name</label>
                 <div className="input-icon">

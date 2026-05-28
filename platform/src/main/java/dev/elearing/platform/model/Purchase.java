@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "purchases")
@@ -34,4 +35,6 @@ public class Purchase extends BaseEntity{
     @Column(name = "payment_method")
     @Enumerated(EnumType.STRING)
     private PaymentMethod method;
+
+    private LocalDateTime purchaseDate;
 }

@@ -4,15 +4,17 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import dev.elearing.platform.dto.AuthPrincipal;
+import dev.elearing.platform.model.User;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.sql.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @Service
-public class JwtService {
+public class AccessToken {
 
     @Value("${api.security.token.secret}")
     private String secret;
@@ -20,20 +22,13 @@ public class JwtService {
     @Value("${jwt.issuer}")
     private String issuer;
 
-    public String generateToken(AuthPrincipal principal) {
+    public String generateToken(User user) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.create()
                     .withIssuer(issuer)
-                    .withSubject(principal.getEmail())
-                    .withClaim("id", principal.getId())
-                    .withClaim("roles",
-                            principal.getAuthorities()
-                                    .stream()
-                                    .map(GrantedAuthority::getAuthority)
-                                    .toList()
-                    )
-                    .withExpiresAt(new Date(getExpirationDate()))
+                    .withSubject(user.getUsername())
+                    .withExpiresAt(Date.from(getExpirationDate()))
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
             throw new RuntimeException("Error while generating token", exception);
@@ -49,11 +44,11 @@ public class JwtService {
                     .verify(token)
                     .getSubject();
         } catch (JWTVerificationException exception) {
-            return exception.getMessage();
+            return null;
         }
     }
 
-    private Long getExpirationDate() {
-        return System.currentTimeMillis() + 15 * 60 * 1000;
+    private Instant getExpirationDate() {
+        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("+02:00"));
     }
 }

@@ -1,12 +1,10 @@
 package dev.elearing.platform.service;
 
 import dev.elearing.platform.dto.LessonDTO;
+import dev.elearing.platform.dto.OptionDTO;
 import dev.elearing.platform.dto.QuestionDTO;
-import dev.elearing.platform.model.Lesson;
+import dev.elearing.platform.model.*;
 import dev.elearing.platform.model.Module;
-import dev.elearing.platform.model.Question;
-import dev.elearing.platform.model.User;
-import dev.elearing.platform.model.UserProgress;
 import dev.elearing.platform.repository.LessonRepository;
 import dev.elearing.platform.repository.ModuleRepository;
 import dev.elearing.platform.repository.UserProgressRepository;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class LessonService {
@@ -35,14 +32,14 @@ public class LessonService {
     private UserRepository userRepository;
 
     public List<LessonDTO> getAllByModule(Long moduleId) {
-        return lessonRepository.findAllByModuleIdOrderByOrderAsc(moduleId).stream()
+        return lessonRepository.findAllByModuleIdOrderByLessonOrderAsc(moduleId).stream()
                 .map(this::toDTO)
                 .toList();
     }
 
     public LessonDTO getById(Long id) {
         Lesson lesson = lessonRepository.findById(id)
-                .orElseThrow(() ->  new RuntimeException("Lesson not found"));
+                .orElseThrow(() -> new RuntimeException("Lesson not found"));
         return toDTO(lesson);
     }
 
@@ -57,10 +54,9 @@ public class LessonService {
         lesson.setVideoUrl(dto.getVideoUrl());
         lesson.setDuration(dto.getDuration());
         lesson.setOrder(dto.getOrder());
-        lesson.setModule(dto.getModule());
+        lesson.setModule(module);
 
         lesson = lessonRepository.save(lesson);
-
         return toDTO(lesson);
     }
 
@@ -71,7 +67,7 @@ public class LessonService {
 
         boolean isUpdated = false;
 
-        if (dto.getTitle() != null ) {
+        if (dto.getTitle() != null) {
             lesson.setTitle(dto.getTitle());
             isUpdated = true;
         }
@@ -84,7 +80,7 @@ public class LessonService {
             isUpdated = true;
         }
         if (dto.getVideoUrl() != null) {
-            lesson.setDuration(dto.getDuration());
+            lesson.setVideoUrl(dto.getVideoUrl());
             isUpdated = true;
         }
         if (dto.getOrder() != null) {
@@ -97,7 +93,6 @@ public class LessonService {
         }
 
         lesson = lessonRepository.save(lesson);
-
         return toDTO(lesson);
     }
 
@@ -106,20 +101,22 @@ public class LessonService {
         if (!lessonRepository.existsById(id)) {
             throw new RuntimeException("Lesson not found");
         }
-
         lessonRepository.deleteById(id);
     }
 
-    /*@Transactional
-    public void completedLesson(Long lessonId, Long userId, QuizAnswerRequest request) {
+    @Transactional
+    public void completeLesson(Long lessonId, Long userId, int score) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new RuntimeException("Lesson not found"));
 
-    }*/
+        saveProgress(userId, lesson, score);
+    }
 
     private void saveProgress(Long userId, Lesson lesson, int score) {
         UserProgress progress = progressRepository.findByUserIdAndLessonId(userId, lesson.getId())
                 .orElse(new UserProgress());
         User user = userRepository.findById(userId)
-                        .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         progress.setUser(user);
         progress.setLesson(lesson);
@@ -129,6 +126,9 @@ public class LessonService {
         progressRepository.save(progress);
     }
 
+    public boolean isLessonCompleted(Long userId, Long lessonId) {
+        return progressRepository.existsByUserIdAndLessonIdAndCompleted(userId, lessonId, true);
+    }
 
     private LessonDTO toDTO(Lesson lesson) {
         LessonDTO dto = new LessonDTO();
@@ -152,9 +152,23 @@ public class LessonService {
         QuestionDTO dto = new QuestionDTO();
         dto.setId(question.getId());
         dto.setText(question.getText());
-        dto.setOptions(question.getOptions());
         dto.setCorrectAnswer(question.getCorrectAnswer());
         dto.setExplanation(question.getExplanation());
+
+        if (question.getOptions() != null && !question.getOptions().isEmpty()) {
+            List<OptionDTO> optionDTOS = question.getOptions().stream()
+                    .map(this::convertOptionTodDTO)
+                    .toList();
+            dto.setOptions(optionDTOS);
+        }
+        return dto;
+    }
+
+    private OptionDTO convertOptionTodDTO(Option option) {
+        OptionDTO dto = new OptionDTO();
+        dto.setId(option.getId());
+        dto.setText(option.getText());
+        dto.setOptionOrder(option.getOptionOrder());
         return dto;
     }
 }

@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
+
+    Boolean existsByUserIdAndCourseId(Long userId, Long courseId);
 }

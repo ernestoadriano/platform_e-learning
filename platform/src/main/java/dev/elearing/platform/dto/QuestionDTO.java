@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -12,12 +14,8 @@ import lombok.Setter;
 public class QuestionDTO {
 
     private Long id;
-
     private String text;
-
-    private String options;
-
+    private List<OptionDTO> options;
     private Integer correctAnswer;
-
     private String explanation;
 }

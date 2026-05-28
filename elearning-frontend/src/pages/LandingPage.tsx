@@ -1,7 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Award, Users, Clock, ChevronRight } from 'lucide-react';
+import { useEffect } from 'react';
 
 export const LandingPage = () => {
+
+  useEffect(() => {
+    document.title = 'E-Learning Platform';
+  }, []);
   const navigate = useNavigate();
 
   const features = [

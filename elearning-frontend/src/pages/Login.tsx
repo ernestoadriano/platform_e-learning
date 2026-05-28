@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-//import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
@@ -9,14 +10,15 @@ export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  //const { login } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
+
 
   useEffect(() => {
     document.title = 'Login - E-Learning Platform';
   }, []);
 
-  /*const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
@@ -27,7 +29,7 @@ export const Login = () => {
       return;
     }
 
-    if (!email.includes('@')) {
+    if (!email.includes('@') && !email.includes('.')) {
       setError('Please enter a valid email address');
       setIsLoading(false);
       return;
@@ -35,13 +37,13 @@ export const Login = () => {
 
     try {
       await login(email, password);
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (err) {
       setError('Invalid email or password. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  };*/
+  };
 
   return (
     <div className="auth-page">
@@ -80,7 +82,8 @@ export const Login = () => {
               <p>Sign in to continue your learning journey</p>
             </div>
 
-            <form className="auth-form">
+            {/*onSubmit */}
+            <form onSubmit={handleSubmit} className="auth-form">
               <div className="form-group">
                 <label htmlFor="email">Email Address</label>
                 <div className="input-icon">

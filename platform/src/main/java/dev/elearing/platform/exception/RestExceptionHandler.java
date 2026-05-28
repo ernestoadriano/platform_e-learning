@@ -9,6 +9,6 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public RestErrorMessage runtimeHandler(RuntimeException exception) {
-        return new RestErrorMessage(exception.getMessage());
+        return new RestErrorMessage(exception.getMessage(), exception.getLocalizedMessage());
     }
 }

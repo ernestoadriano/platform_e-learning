@@ -10,7 +10,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,6 +17,8 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UserDTO create(UserDTO dto, Role role) {
         if (userRepository.existsByEmail(dto.getEmail())) {
@@ -28,10 +29,11 @@ public class UserService {
 
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
-        String encryptedPassword = new BCryptPasswordEncoder().encode(dto.getPassword());
+        String encryptedPassword = passwordEncoder.encode(dto.getPassword());
         user.setPassword(encryptedPassword);
         user.setAvatar(dto.getAvatar());
         user.setRole(role);
+        user.setIsActive(true);
 
         user = userRepository.save(user);
 
@@ -47,6 +49,11 @@ public class UserService {
     public UserDTO getById(Long id) {
         return toDTO(getUserById(id));
     }
+
+   /* public User getByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }*/
 
     public UserDTO update(Long id, UserDTO dto) {
         User user = getUserById(id);
@@ -67,6 +74,12 @@ public class UserService {
 
         if (dto.getAvatar() != null) {
             user.setAvatar(dto.getAvatar());
+        }
+
+        if (dto.getPassword() != null) {
+            String encryptedPassword = new BCryptPasswordEncoder().encode(dto.getPassword());
+            user.setPassword(encryptedPassword);
+            isUpdated = true;
         }
 
         if (isUpdated) {
@@ -96,13 +109,13 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    private UserDTO toDTO(User user) {
+    public UserDTO toDTO(User user) {
         return new UserDTO(
                 user.getName(),
                 user.getEmail(),
                 "-",
                 user.getAvatar(),
-                user.getRole()
+                user.getRole().getRole()
         );
     }
 }

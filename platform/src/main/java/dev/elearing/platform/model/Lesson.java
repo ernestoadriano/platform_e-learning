@@ -1,5 +1,6 @@
 package dev.elearing.platform.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-public class Lesson extends BaseEntity{
+public class Lesson extends BaseEntity {
 
     @Column(nullable = false)
     private String title;
@@ -26,17 +27,15 @@ public class Lesson extends BaseEntity{
     @Column(nullable = false)
     private Integer duration;
 
-    @Column(nullable = false)
+    // RENOMEADO - 'order' é palavra reservada no PostgreSQL
+    @Column(name = "lesson_order", nullable = false)
     private Integer order;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "module_id", nullable = false)
     private Module module;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
-
-    @OneToMany(mappedBy = "lesson")
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL)
     private List<Question> questions;
 }

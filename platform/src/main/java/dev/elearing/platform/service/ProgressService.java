@@ -26,16 +26,11 @@ public class ProgressService {
     @Autowired
     private ModuleRepository moduleRepository;
 
-    /*
-     * Verify if the user can access lesson
-     * Rule:
-     */
-
     public boolean canAccessLesson(Long userId, Long lessonId) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new RuntimeException("Lesson not found"));
 
-        List<Lesson> moduleLessons = lessonRepository.findAllByModuleIdOrderByOrderAsc(lesson.getModule().getId());
+        List<Lesson> moduleLessons = lessonRepository.findAllByModuleIdOrderByLessonOrderAsc(lesson.getModule().getId());
 
         if (lesson.getOrder() == 0) {
             return canAccessModule(userId, lesson.getModule().getId());
@@ -49,14 +44,18 @@ public class ProgressService {
         Module module = moduleRepository.findById(moduleId)
                 .orElseThrow(() -> new RuntimeException("Module not found"));
 
-
         if (module.getOrder() == 0) {
             return true;
         }
 
-        List<Lesson> previousModuleLessons = lessonRepository.findAllByModuleIdOrderByOrderAsc(
-            getPreviousModuleId(module.getId(), module.getOrder()));
+        Module previousModule = moduleRepository.findByCourseIdAndModuleOrder(module.getCourse().getId(), module.getOrder() - 1)
+                .orElse(null);
 
+        if (previousModule == null) {
+            return true;
+        }
+
+        List<Lesson> previousModuleLessons = lessonRepository.findAllByModuleIdOrderByLessonOrderAsc(previousModule.getId());
 
         for (Lesson lesson : previousModuleLessons) {
             if (!progressRepository.existsByUserIdAndLessonIdAndCompleted(userId, lesson.getId(), true)) {
@@ -66,14 +65,8 @@ public class ProgressService {
         return true;
     }
 
-    private Long getPreviousModuleId(Long courseId, Integer currentOrder) {
-        Module previousModule = moduleRepository.findByCourseIdAndOrder(courseId, currentOrder - 1)
-                .orElseThrow();
-        return previousModule.getId();
-    }
-
     public ProgressResponse getCourseProgress(Long userId, Long courseId) {
-        List<Lesson> lessons = lessonRepository.findAllByCourseId(courseId);
+        List<Lesson> lessons = lessonRepository.findAllByCourseIdOrdered(courseId);
         List<UserProgress> userProgresses = progressRepository.findAllByUserIdAndCourseId(userId, courseId);
 
         Map<Long, Boolean> lessonStatus = new HashMap<>();
@@ -81,16 +74,19 @@ public class ProgressService {
 
         for (UserProgress progress : userProgresses) {
             lessonStatus.put(progress.getLesson().getId(), progress.getCompleted());
-            lessonScores.put(progress.getLesson().getId(), progress.getScore());
+            if (progress.getScore() != null) {
+                lessonScores.put(progress.getLesson().getId(), progress.getScore());
+            }
         }
 
-        long completedCount = lessonStatus.values().stream().filter(v -> v).count();
-        int percentage = lessons.isEmpty() ? 0 : (int) ((completedCount * 100) / lessons.size());
+        long completedCount = lessonStatus.values().stream().filter(v -> v != null && v).count();
+        int totalLessons = lessons.size();
+        int percentage = totalLessons == 0 ? 0 : (int) ((completedCount * 100) / totalLessons);
 
         ProgressResponse response = new ProgressResponse();
         response.setCourseId(courseId);
         response.setCompletedLessons((int) completedCount);
-        response.setTotalLessons(lessons.size());
+        response.setTotalLessons(totalLessons);
         response.setPercentage(percentage);
         response.setLessonStatus(lessonStatus);
         response.setLessonsScores(lessonScores);
@@ -98,7 +94,7 @@ public class ProgressService {
         return response;
     }
 
-    public Map<String, Object> getUserStatus(Long userId) {
+    public Map<String, Object> getUserStats(Long userId) {
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalLessonsCompleted", progressRepository.countCompletedLessonsByUserId(userId));
         return stats;

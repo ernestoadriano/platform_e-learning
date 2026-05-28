@@ -12,4 +12,6 @@ import lombok.Setter;
 public class RestErrorMessage {
 
     private String message;
+
+    private String localizedMessage;
 }

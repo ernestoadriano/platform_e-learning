@@ -5,13 +5,14 @@ import axios from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import type { AuthResponse } from '../types';
 
+
 class ApiService {
   private api: AxiosInstance;
   private refreshTokenPromise: Promise<string> | null = null;
 
   constructor() {
     this.api = axios.create({
-      baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
+      baseURL: 'http://localhost:8080/api',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -20,15 +21,20 @@ class ApiService {
     this.setupInterceptors();
   }
 
+  
+
   private setupInterceptors() {
     // Request interceptor
     this.api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-      const token = localStorage.getItem('access_token');
-      if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    });
+  const token = localStorage.getItem('access_token');
+  console.log('Interceptor - Token:', token);
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+    console.log('Interceptor - Header set:', config.headers.Authorization);
+  }
+  return config;
+});
+
 
     // Response interceptor
     this.api.interceptors.response.use(
@@ -69,14 +75,15 @@ class ApiService {
           throw new Error('No refresh token');
         }
 
+        
         const response = await this.api.post<AuthResponse>('/auth/refresh', {
-          refresh_token: refreshToken,
+            refreshToken: refreshToken,
         });
 
-        localStorage.setItem('access_token', response.data.access_token);
-        localStorage.setItem('refresh_token', response.data.refresh_token);
+        localStorage.setItem('access_token', response.data.accessToken); 
+        localStorage.setItem('refresh_token', response.data.refreshToken); 
         
-        resolve(response.data.access_token);
+        resolve(response.data.accessToken);
       } catch (error) {
         reject(error);
       } finally {

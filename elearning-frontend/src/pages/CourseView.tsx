@@ -62,7 +62,7 @@ export const CourseView = () => {
       <div className="container">
         <div className="course-content">
           <div className="modules-list">
-            {course.modules.map((module, moduleIndex) => {
+            {course.modules.map((module) => {  // ← REMOVIDO o moduleIndex não usado
               const moduleLocked = isModuleLocked(module.order);
               
               return (
@@ -73,8 +73,8 @@ export const CourseView = () => {
                   </div>
                   
                   <div className="lessons-list">
-                    {module.lessons.map((lesson, lessonIndex) => {
-                      const lessonLocked = moduleLocked || isLessonLocked(module, lesson.order);
+                    {module.lessons.map((lesson) => {
+                      const lessonLocked = moduleLocked || isLessonLocked(module, lesson.lessonOrder);
                       const isCompleted = progress[lesson.id]?.completed;
                       
                       return (

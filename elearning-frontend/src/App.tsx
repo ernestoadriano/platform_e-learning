@@ -9,6 +9,7 @@ import { Courses } from './pages/Courses';
 import { Dashboard } from './pages/Dashboard';
 import { CourseView } from './pages/CourseView';
 import './index.css';
+import { LessonView } from './pages/LessonView';
 
 // Componente para rotas protegidas (só acessa se estiver logado)
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -64,6 +65,12 @@ function App() {
           <Route path="/courses/:courseId" element={
             <PrivateRoute>
               <CourseView />
+            </PrivateRoute>
+          } />
+
+          <Route path='/courses/:courseId/modules/:moduleId/lessons/:lessonId' element={
+            <PrivateRoute>
+              <LessonView />
             </PrivateRoute>
           } />
         </Routes>

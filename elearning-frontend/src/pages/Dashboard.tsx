@@ -19,15 +19,35 @@ export const Dashboard = () => {
 
     const fetchDashboardData = async () => {
         try {
-            const [coursesRes, certificatesRes, progressRes] = await Promise.all([
-                api.get('/users/me/courses'),
-                api.get('/users/me/certificates'),
-                api.get('/users/me/progress')
+            const [coursesRes, certificatesRes] = await Promise.all([
+                api.get('/courses/user/purchased'),
+                api.get('/certificates/me')
             ]);
 
             setMyCourses(coursesRes.data);
             setCertificates(certificatesRes.data);
-            setProgress(progressRes.data);
+            
+            // Buscar progresso para cada curso
+            const progressPromises = coursesRes.data.map((course: Course) =>
+                api.get(`/courses/${course.id}/progress`)
+            );
+            const progressResults = await Promise.all(progressPromises);
+            const progressMap: Record<string, any> = {};
+            progressResults.forEach((res, index) => {
+                const courseId = coursesRes.data[index].id;
+                const progressData = res.data;
+                
+                // Log para debug - veja o que está chegando do backend
+                console.log(`Progress for course ${courseId}:`, progressData);
+                
+                progressMap[courseId] = {
+                    completedLessons: progressData.completedLessons || 0,
+                    totalLessons: progressData.totalLessons || 1,
+                    percentage: progressData.percentage || 0
+                };
+            });
+            setProgress(progressMap);
+            
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
         } finally {
@@ -38,11 +58,19 @@ export const Dashboard = () => {
     const getProgressPercentage = (courseId: string) => {
         const courseProgress = progress[courseId];
         if (!courseProgress) return 0;
-        return Math.round((courseProgress.completedLessons / courseProgress.totalLessons) * 100);
+        
+        // Garantir que temos números válidos
+        const completed = Number(courseProgress.completedLessons) || 0;
+        const total = Number(courseProgress.totalLessons) || 1;
+        
+        if (total === 0) return 0;
+        
+        const percentage = Math.round((completed / total) * 100);
+        return isNaN(percentage) ? 0 : percentage;
     };
 
     if (isLoading) {
-        return <div className="loading">Loading dashboard...</div>
+        return <div className="loading">Loading dashboard...</div>;
     }
 
     return (
@@ -59,34 +87,46 @@ export const Dashboard = () => {
                     <div className="dashboard-main">
                         <h2>My Courses</h2>
                         <div className="courses-list">
-                            {myCourses.map((course) => (
-                                <div className="course-progress-card card">
-                                    <div className="course-info">
-                                        <h3>{course.title}</h3>
-                                        <p>{course.description}</p>
-                                        <div className="progress-bar">
-                                            <div 
-                                                className="progress-fill"
-                                                style={{ width: `${getProgressPercentage(course.id)}%` }}
-                                            />
-                                        </div>
-                                        <span className="progress-text">{getProgressPercentage(course.id)}% Complete</span>
-                                    </div>
+                            {myCourses.length === 0 ? (
+                                <div className="card">
+                                    <p>You haven't purchased any courses yet.</p>
                                     <button 
-                                        className="btn btn-secondary"
-                                        onClick={() => navigate(`/courses/${course.id}`)}
+                                        className="btn btn-primary"
+                                        onClick={() => navigate('/courses')}
                                     >
-                                        Continue <ChevronRight size={16} />
+                                        Browse Courses
                                     </button>
                                 </div>
-                            ))}
+                            ) : (
+                                myCourses.map((course) => (
+                                    <div key={course.id} className="course-progress-card card">
+                                        <div className="course-info">
+                                            <h3>{course.title}</h3>
+                                            <p>{course.description}</p>
+                                            <div className="progress-bar">
+                                                <div 
+                                                    className="progress-fill"
+                                                    style={{ width: `${getProgressPercentage(course.id)}%` }}
+                                                />
+                                            </div>
+                                            <span className="progress-text">{getProgressPercentage(course.id)}% Complete</span>
+                                        </div>
+                                        <button 
+                                            className="btn btn-secondary"
+                                            onClick={() => navigate(`/courses/${course.id}`)}
+                                        >
+                                            Continue <ChevronRight size={16} />
+                                        </button>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
 
                     <div className="dashboard-sidebar">
                         <div className="certificates-card card">
                             <h3><Award size={20} /> Certificates</h3>
-                            {certificates.length === 0 ? (
+                            {certificates.length > 0 ? (
                                 <ul>
                                     {certificates.map((cert) => (
                                         <li key={cert.id}>
@@ -118,4 +158,4 @@ export const Dashboard = () => {
             </div>
         </div>
     );
-}
+};
