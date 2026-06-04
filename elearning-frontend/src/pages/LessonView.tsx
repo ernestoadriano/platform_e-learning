@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ReactPlayer from 'react-player';
 import { api } from '../services/api';
 import type { Lesson, Question } from '../types';
-import { CheckCircle, ArrowLeft, Play, Lock, XCircle } from 'lucide-react';
+import { CheckCircle, ArrowLeft, Play, Lock } from 'lucide-react';
 
 export const LessonView = () => {
   const { courseId, moduleId, lessonId } = useParams();
