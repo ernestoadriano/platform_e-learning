@@ -33,6 +33,13 @@ public class ModuleService {
         return toResponse(module);
     }
 
+    public Long getCourseIdByModuleId(Long moduleId) {
+        Module module = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new RuntimeException("Module not found: " + moduleId));
+
+        return module.getCourse().getId();
+    }
+
     @Transactional
     public ModuleResponse create(Long courseId, ModuleRequest request) {
         Course course = courseRepository.findById(courseId)

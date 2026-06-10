@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content">
+    <h2>Course Purchased! 🎓</h2>
+    <p>Hello <strong th:text="${name}">Student</strong>,</p>
+    <p>Thank you for your purchase! You now have access to:</p>
+
+    <div style="background-color: #14141c; padding: 20px; border-radius: 12px; margin: 20px 0;">
+        <h3 style="color: #3b82f6; margin: 0 0 8px 0;" th:text="${courseTitle}">Course Title</h3>
+        <p style="color: #a1a1aa; margin: 0;" th:text="${courseDescription}">Course Description</p>
+    </div>
+
+    <p>Your learning journey starts now!</p>
+
+    <div style="text-align: center;">
+        <a th:href="${courseUrl}" class="button">Start Learning Now →</a>
+    </div>
+
+    <p>You can access this course anytime from your dashboard.</p>
+
+    <p>Best regards,<br>
+        <strong>The E-Learning Team</strong></p>
+</div>
+</body>
+</html>

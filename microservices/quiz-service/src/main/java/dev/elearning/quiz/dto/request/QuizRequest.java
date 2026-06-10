@@ -15,7 +15,7 @@ public class QuizRequest {
     private String title;
     private String description;
     private Long lessonId;
-    private Integer passingScore;
+    private Double passingScore;
     private Integer timeLimitMinutes;
     private Integer maxAttempts;
 

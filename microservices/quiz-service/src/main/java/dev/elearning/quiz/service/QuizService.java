@@ -5,11 +5,10 @@ import dev.elearning.quiz.dto.request.QuizRequest;
 import dev.elearning.quiz.dto.request.QuizSubmitRequest;
 import dev.elearning.quiz.dto.response.*;
 import dev.elearning.quiz.model.*;
-import dev.elearning.quiz.repository.OptionRepository;
-import dev.elearning.quiz.repository.QuestionRepository;
 import dev.elearning.quiz.repository.QuizAttemptRepository;
 import dev.elearning.quiz.repository.QuizRepository;
 import jakarta.transaction.Transactional;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +21,6 @@ public class QuizService {
 
     @Autowired
     private QuizRepository quizRepository;
-
-    @Autowired
-    private QuestionRepository questionRepository;
-
-    @Autowired
-    private OptionRepository optionRepository;
 
     @Autowired
     private QuizAttemptRepository attemptRepository;
@@ -67,7 +60,7 @@ public class QuizService {
     }
 
     public boolean hasUserPassedQuiz(Long userId, Long lessonId) {
-        Quiz quiz = quizRepository.findByLessonId(lessonId)
+        quizRepository.findByLessonId(lessonId)
                 .orElseThrow(() -> new RuntimeException("Quiz not found"));
         return attemptRepository.existsByUserIdAndQuizIdAndPassedTrue(userId, lessonId);
     }
@@ -84,7 +77,7 @@ public class QuizService {
         Quiz quiz = getQuizByLessonId(lessonId);
 
         if (getRemainingAttempts(userId, lessonId) <= 0) {
-            throw new RuntimeException("No attempts remaning for this quiz");
+            throw new RuntimeException("No attempts remaining for this quiz");
         }
 
         QuizEvaluationService.QuizEvaluation evaluation = evaluationService.evaluateQuiz(quiz, request.getAnswers());
@@ -144,29 +137,34 @@ public class QuizService {
 
         if (request.getQuestions() != null) {
             for (int i = 0; i < request.getQuestions().size(); i++) {
-                QuestionRequest qReq = request.getQuestions().get(i);
-                Question question = new Question();
-                question.setText(qReq.getText());
-                question.setQuiz(quiz);
-                question.setQuestionOrder(i);
-                question.setCorrectAnswer(qReq.getCorreactAnswer());
-                question.setExplanation(qReq.getExplanation());
-
-                List<Option> options = new ArrayList<>();
-                for (int j = 0; j < qReq.getOptions().size(); j++) {
-                    Option option = new Option();
-                    option.setText(qReq.getOptions().get(j));
-                    option.setOptionOrder(j);
-                    option.setQuestion(question);
-                    options.add(option);
-                }
-                question.setOptions(options);
+                Question question = getQuestion(request, i, quiz);
                 quiz.getQuestions().add(question);
             }
         }
         quiz = quizRepository.save(quiz);
 
         return toResponse(quiz);
+    }
+
+    private static @NonNull Question getQuestion(QuizRequest request, int i, Quiz quiz) {
+        QuestionRequest qReq = request.getQuestions().get(i);
+        Question question = new Question();
+        question.setText(qReq.getText());
+        question.setQuiz(quiz);
+        question.setQuestionOrder(i);
+        question.setCorrectAnswer(qReq.getCorreactAnswer());
+        question.setExplanation(qReq.getExplanation());
+
+        List<Option> options = new ArrayList<>();
+        for (int j = 0; j < qReq.getOptions().size(); j++) {
+            Option option = new Option();
+            option.setText(qReq.getOptions().get(j));
+            option.setOptionOrder(j);
+            option.setQuestion(question);
+            options.add(option);
+        }
+        question.setOptions(options);
+        return question;
     }
 
     private Quiz getQuizByLessonId(Long lessonId){

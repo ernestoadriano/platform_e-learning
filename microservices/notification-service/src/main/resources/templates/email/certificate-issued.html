@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content">
+    <h2>Your Certificate is Ready! 📜✨</h2>
+    <p>Dear <strong th:text="${name}">Student</strong>,</p>
+    <p>Congratulations on completing the course!</p>
+
+    <div style="background-color: #14141c; padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center;">
+        <h3 style="color: #3b82f6; margin: 0 0 8px 0;" th:text="${courseTitle}">Course Title</h3>
+        <p style="color: #a1a1aa; margin: 0;">Certificate Code: <strong th:text="${certificateCode}">CODE</strong></p>
+        <p style="color: #a1a1aa; margin: 0;">Grade: <strong th:text="${grade} + '%'">95%</strong></p>
+        <p style="color: #a1a1aa; margin: 0;">Issued: <strong th:text="${issueDate}">Date</strong></p>
+    </div>
+
+    <div style="text-align: center;">
+        <a th:href="${certificateUrl}" class="button">Download Certificate (PDF) ↓</a>
+    </div>
+
+    <div style="text-align: center; margin-top: 16px;">
+        <a th:href="${verificationUrl}" style="color: #3b82f6; text-decoration: none;">Verify Certificate →</a>
+    </div>
+
+    <div class="divider"></div>
+
+    <p>Share your certificate on:</p>
+    <ul class="list">
+        <li>📘 <strong>LinkedIn</strong> - Add to your profile</li>
+        <li>🐦 <strong>Twitter/X</strong> - Share your achievement</li>
+        <li>📧 <strong>Email</strong> - Send to your employer</li>
+    </ul>
+
+    <p>Keep learning and growing!<br>
+        <strong>The E-Learning Team</strong></p>
+</div>
+</body>
+</html>

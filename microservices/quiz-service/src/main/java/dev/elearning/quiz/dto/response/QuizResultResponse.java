@@ -14,7 +14,7 @@ import java.util.List;
 public class QuizResultResponse {
     private Long attemptId;
     private Integer attemptNumber;
-    private Integer score;
+    private Double score;
     private Boolean passed;
     private Integer totalQuestions;
     private Integer correctAnswers;

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content">
+    <h2>Welcome to E-Learning Platform! 🎉</h2>
+    <p>Hello <strong th:text="${name}">Student</strong>,</p>
+    <p>We're thrilled to have you on board! You've just taken the first step towards mastering new skills and advancing your career.</p>
+
+    <div class="divider"></div>
+
+    <p>Here's what you can expect:</p>
+    <ul class="list">
+        <li>✓ <strong>500+ expert-led courses</strong> - Learn from industry professionals</li>
+        <li>✓ <strong>Earn certificates</strong> - Showcase your achievements</li>
+        <li>✓ <strong>Learn at your pace</strong> - Access content 24/7</li>
+        <li>✓ <strong>Community support</strong> - Connect with fellow learners</li>
+    </ul>
+
+    <div style="text-align: center;">
+        <a href="https://elearning.com/courses" class="button">Explore Courses →</a>
+    </div>
+
+    <p>Ready to start your learning journey? Click the button above to browse our course catalog!</p>
+
+    <p>Happy learning!<br>
+        <strong>The E-Learning Team</strong></p>
+</div>
+</body>
+</html>

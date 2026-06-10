@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">E-Learning Platform</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0a0a0f;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #0a0a0f;
+        }
+        .card {
+            background-color: #1c1c24;
+            border-radius: 16px;
+            border: 1px solid #2a2a35;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            color: white;
+            font-size: 24px;
+            margin: 0;
+            font-weight: 700;
+        }
+        .content {
+            padding: 30px;
+            color: #e4e4e7;
+        }
+        .content h2 {
+            color: #e4e4e7;
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+        .content p {
+            color: #a1a1aa;
+            margin-bottom: 16px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 20px 0;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #2563eb;
+        }
+        .footer {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #2a2a35;
+            background-color: #14141c;
+        }
+        .footer p {
+            color: #71717a;
+            font-size: 12px;
+            margin: 0;
+        }
+        .badge {
+            display: inline-block;
+            background-color: #22c55e;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .list {
+            margin: 20px 0;
+            padding-left: 20px;
+        }
+        .list li {
+            color: #a1a1aa;
+            margin-bottom: 8px;
+        }
+        .divider {
+            height: 1px;
+            background-color: #2a2a35;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="header">
+            <h1 th:text="${headerTitle}">E-Learning Platform</h1>
+        </div>
+        <div class="content">
+            <th:block th:replace="${content}"></th:block>
+        </div>
+        <div class="footer">
+            <p>© 2026 E-Learning Platform. All rights reserved.</p>
+            <p>If you have any questions, contact us at support@elearning.com</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

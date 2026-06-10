@@ -15,7 +15,7 @@ public class QuizEvaluationService {
     @Data
     @AllArgsConstructor
     public static class QuizEvaluation {
-        private int score;
+        private Double score;
         private int correctAnswers;
         private int totalQuestions;
         private List<Integer> answers;
@@ -42,7 +42,7 @@ public class QuizEvaluationService {
             correactAnswersList.add(isCorrect);
         }
 
-        int score = (totalQuestions > 0) ? (correctAnswers * 100) / totalQuestions : 0;
+        Double score = (double) ((totalQuestions > 0) ? (correctAnswers * 100) / totalQuestions : 0);
 
         return new QuizEvaluation(score, correctAnswers, totalQuestions, answers, correactAnswersList);
     }

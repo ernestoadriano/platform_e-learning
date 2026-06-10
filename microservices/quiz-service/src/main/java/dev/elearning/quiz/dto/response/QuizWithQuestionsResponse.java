@@ -16,7 +16,7 @@ public class QuizWithQuestionsResponse {
     private Long id;
     private String title;
     private String description;
-    private Integer passingScore;
+    private Double passingScore;
     private Integer timeLimitMinutes;
     private List<QuestionResponse> questions;
 }

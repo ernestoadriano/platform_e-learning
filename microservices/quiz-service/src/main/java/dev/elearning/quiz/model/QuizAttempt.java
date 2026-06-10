@@ -28,7 +28,7 @@ public class QuizAttempt extends BaseEntity {
     @Column(nullable = false)
     private Integer attemptNumber;
 
-    private Integer score;
+    private Double score;
 
     private Boolean passed = false;
 

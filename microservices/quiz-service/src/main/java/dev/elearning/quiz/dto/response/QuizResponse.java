@@ -14,6 +14,6 @@ public class QuizResponse {
     private String title;
     private String description;
     private Long lessonId;
-    private Integer passingScore;
+    private Double passingScore;
     private Integer maxAttempts;
 }

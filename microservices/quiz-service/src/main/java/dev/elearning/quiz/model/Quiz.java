@@ -27,7 +27,7 @@ public class Quiz extends BaseEntity {
     private Long lessonId;
 
     @Column(nullable = false)
-    private Integer passingScore = 70;
+    private Double passingScore = 70.0;
 
     private Integer timeLimitMinutes;
 

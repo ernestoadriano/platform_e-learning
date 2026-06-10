@@ -15,7 +15,7 @@ public class QuizAttemptResponse {
 
     private Long id;
     private Integer attemptNumber;
-    private Integer score;
+    private Double score;
     private Boolean passed;
     private LocalDateTime completedAt;
 }

@@ -2,6 +2,7 @@ package dev.elearning.quiz.controller;
 
 import dev.elearning.quiz.dto.request.QuizRequest;
 import dev.elearning.quiz.dto.request.QuizSubmitRequest;
+import dev.elearning.quiz.dto.response.QuizAttemptResponse;
 import dev.elearning.quiz.dto.response.QuizResponse;
 import dev.elearning.quiz.dto.response.QuizResultResponse;
 import dev.elearning.quiz.dto.response.QuizWithQuestionsResponse;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/quizzes")
@@ -29,13 +32,21 @@ public class QuizController {
     }
 
     @GetMapping("/users/{usersId}/lessons/{lessonId}/passed")
-    public ResponseEntity<Boolean> hasUserPassedQuiz(@PathVariable("userId") Long userId, @PathVariable("lessonId") Long lessonId) {
+    public ResponseEntity<Boolean> hasUserPassedQuiz(@PathVariable("userId") Long userId,
+                                                     @PathVariable("lessonId") Long lessonId) {
         return ResponseEntity.ok(quizService.hasUserPassedQuiz(userId, lessonId));
     }
 
     @GetMapping("/users/{userId}/lessons/{lessonId}/remaining-attempts")
-    public ResponseEntity<Integer> getRemainingAttempts(@PathVariable("userId") Long userId, @PathVariable("lessonId") Long lessonId) {
+    public ResponseEntity<Integer> getRemainingAttempts(@PathVariable("userId") Long userId,
+                                                        @PathVariable("lessonId") Long lessonId) {
         return ResponseEntity.ok(quizService.getRemainingAttempts(userId, lessonId));
+    }
+
+    @GetMapping("/users/{userId}/lessons/{lessonId}/attemps")
+    public ResponseEntity<List<QuizAttemptResponse>> getUserAttempts(@PathVariable("userId") Long userId,
+                                                                     @PathVariable("lessonId") Long lessonId) {
+        return ResponseEntity.ok(quizService.getUserAttempts(userId, lessonId));
     }
 
     @PostMapping("/lessons/{lessonId}/submit")

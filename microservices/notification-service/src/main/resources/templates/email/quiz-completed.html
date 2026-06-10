@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content">
+    <h2>Quiz Completed! 📝</h2>
+    <p>Hello <strong th:text="${name}">Student</strong>,</p>
+    <p>You have completed the quiz for:</p>
+
+    <div style="background-color: #14141c; padding: 20px; border-radius: 12px; margin: 20px 0;">
+        <h3 style="color: #3b82f6; margin: 0 0 8px 0;" th:text="${lessonTitle}">Lesson Title</h3>
+        <p style="color: #a1a1aa; margin: 0;">From course: <strong th:text="${courseTitle}">Course Title</strong></p>
+    </div>
+
+    <p>Your score: <span class="badge" th:text="${score} + '%'">85%</span></p>
+
+    <div th:if="${score >= 70}">
+        <p>🎉 <strong>Congratulations! You passed the quiz!</strong> You can now proceed to the next lesson.</p>
+        <div style="text-align: center;">
+            <a th:href="${nextLessonUrl}" class="button">Continue to Next Lesson →</a>
+        </div>
+    </div>
+
+    <div th:unless="${score >= 70}">
+        <p>⚠️ You scored below 70%. Don't worry! Review the lesson and try again.</p>
+        <div style="text-align: center;">
+            <a th:href="${lessonUrl}" class="button">Review Lesson →</a>
+        </div>
+    </div>
+
+    <p>Keep up the good work!</p>
+
+    <p>Best regards,<br>
+        <strong>The E-Learning Team</strong></p>
+</div>
+</body>
+</html>

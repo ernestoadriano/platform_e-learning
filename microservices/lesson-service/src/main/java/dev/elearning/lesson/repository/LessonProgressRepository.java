@@ -28,6 +28,8 @@ public interface LessonProgressRepository extends JpaRepository<LessonProgress, 
             "lp.isCompleted = true AND lp.lessonId IN (SELECT l.id FROM Lesson l WHERE l.moduleId = :moduleId)")
     Long countCompletedLessonsInModule(@Param("userId") Long userId, @Param("moduleId") Long moduleId);
 
+    Long countCompletedLessons(@Param("courseId"))
+
     @Modifying
     @Transactional
     @Query("UPDATE LessonProgress lp SET lp.isCompleted = true, lp.score = :score, lp.completedAt = CURRENT_TIMESTAMP " +

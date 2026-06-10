@@ -24,7 +24,6 @@ public class Lesson extends BaseEntity{
     @Column(nullable = false)
     private Long moduleId;
 
-
     @Column(length = 500)
     private String videoUrl;
 
